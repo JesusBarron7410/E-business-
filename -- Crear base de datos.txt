@@ -1,0 +1,74 @@
+-- Crear base de datos
+CREATE DATABASE e_business_ferreteria_online;
+GO
+USE e_business_ferreteria_online;
+GO
+
+-- Tabla de usuarios
+CREATE TABLE usuarios (
+    id_usuario INT IDENTITY(1,1) PRIMARY KEY,
+    nombre NVARCHAR(100) NOT NULL,
+    email NVARCHAR(100) UNIQUE NOT NULL,
+    contrasena NVARCHAR(255) NOT NULL,
+    direccion_envio NVARCHAR(MAX) NOT NULL,
+    telefono NVARCHAR(15),
+    fecha_registro DATETIME DEFAULT GETDATE()
+);
+
+-- Tabla de productos
+CREATE TABLE productos (
+    id_producto INT IDENTITY(1,1) PRIMARY KEY,
+    nombre NVARCHAR(100) NOT NULL,
+    descripcion NVARCHAR(MAX),
+    precio DECIMAL(10, 2) NOT NULL,
+    stock INT NOT NULL,
+    imagen_url NVARCHAR(255),
+    categoria NVARCHAR(50),
+    fecha_agregado DATETIME DEFAULT GETDATE()
+);
+
+-- Tabla de pedidos
+CREATE TABLE pedidos (
+    id_pedido INT IDENTITY(1,1) PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    total DECIMAL(10, 2) NOT NULL,
+    estado NVARCHAR(20) DEFAULT 'pendiente',
+    metodo_pago NVARCHAR(20) NOT NULL,
+    direccion_envio NVARCHAR(MAX) NOT NULL,
+    fecha_pedido DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+);
+
+-- Tabla de detalles de pedidos
+CREATE TABLE detalles_pedidos (
+    id_detalle INT IDENTITY(1,1) PRIMARY KEY,
+    id_pedido INT NOT NULL,
+    id_producto INT NOT NULL,
+    cantidad INT NOT NULL,
+    subtotal DECIMAL(10, 2) NOT NULL,
+    FOREIGN KEY (id_pedido) REFERENCES pedidos(id_pedido),
+    FOREIGN KEY (id_producto) REFERENCES productos(id_producto)
+);
+
+-- Tabla de calificaciones
+CREATE TABLE calificaciones (
+    id_calificacion INT IDENTITY(1,1) PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    id_producto INT NOT NULL,
+    calificacion INT CHECK (calificacion BETWEEN 1 AND 5),
+    comentario NVARCHAR(MAX),
+    fecha_calificacion DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario),
+    FOREIGN KEY (id_producto) REFERENCES productos(id_producto)
+);
+
+-- Tabla de notificaciones
+CREATE TABLE notificaciones (
+    id_notificacion INT IDENTITY(1,1) PRIMARY KEY,
+    id_usuario INT NOT NULL,
+    mensaje NVARCHAR(MAX) NOT NULL,
+    tipo NVARCHAR(20) DEFAULT 'pedido',
+    fecha_envio DATETIME DEFAULT GETDATE(),
+    leido BIT DEFAULT 0,
+    FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
+);
